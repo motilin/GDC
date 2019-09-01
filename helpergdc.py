@@ -1,3 +1,5 @@
+import sys
+
 import requests
 import json
 import re
@@ -266,26 +268,24 @@ def getFileDataHelper(f, s):
     return result
 
 ## returns a dictionary of all the cases in gdc. The values are the files related to the cases ##
-def getFileData():
-    filesCollection = connectToDatabase().files
-    fileData = dict()
+def getFilesCollection():
+    db = connectToDatabase()
+    db.drop_collection("files")
+    filesCollection = db.files
     f = 0
     result = ["init"]
     while len(result) != 0:
         result = getFileDataHelper(f, SIZE)
         f += SIZE
-        for record in result:
-            cases = record.pop("cases")
-            for case in cases:
-                case_id = case["case_id"]
-                if "samples" in case.keys():
-                    record["samples"] = case["samples"]
-                if case_id in fileData.keys():
-                    fileData[case_id].append(record)
-                else:
-                    fileData[case_id] = [record]
-    print("number of cases: " + str(len(fileData.keys())))
-    return fileData
+        try:
+            filesCollection.insert_many(result)
+        except TypeError as error:
+            print("files: end")
+    return filesCollection
+
+def readFilesCollection():
+    db = connectToDatabase()
+    return db.files
 
 ## reading a json into a dictionary ##
 def readJson(fileName):

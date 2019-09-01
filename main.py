@@ -3,8 +3,8 @@ import helpergdc as hg
 
 # drugTable = hg.getTable("clinical", "drug")
 drugTable = pd.read_csv("./drugTable.csv", index_col=0)
-# fileData = hg.getFileData()
-fileData = hg.readJson("./fileData.json")
+# filesCollection = hg.getFilesCollection()
+filesCollection = hg.readFilesCollection()
 # patientTable = hg.getTable("clinical", "patient")
 
 drugTable["bcr_patient_uuid"] = drugTable["bcr_patient_uuid"].str.lower()
@@ -33,3 +33,4 @@ print("number of drugs: " + str(monoDrugTable["drug_name"].unique().shape[0]))
 fileTypes = set([file["data_type"] for case in fileData for file in fileData[case]])
 for fileType in fileTypes:
     hg.plotDrugSummaryWithDataType(tableDrugResponse, fileType, 10, fileData)
+
