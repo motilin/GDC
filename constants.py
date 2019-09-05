@@ -29,4 +29,7 @@ responses = ["unknown", "complete response", "partial response", "stable disease
 
 nullDrugs = ['[not available]', '[unknown]', 'chemo, nos']
 
+nullDiagnosis = ['not reported']
+
 drugsWithTypeColors = [["darkgreen", "forestgreen"], ["blue", "cornflowerblue"], ["orange", "bisque"], ["red", "lightcoral"]]
+

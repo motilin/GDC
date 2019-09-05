@@ -1,0 +1,96 @@
+{
+  "data": {
+    "hits": [
+      {
+        "program": {
+          "name": "CPTAC"
+        }, 
+        "dbgap_accession_number": "phs001287", 
+        "name": "", 
+        "id": "CPTAC-3"
+      }, 
+      {
+        "program": {
+          "name": "VAREPOP"
+        }, 
+        "dbgap_accession_number": "phs001374", 
+        "name": "VA Research Precision Oncology Program", 
+        "id": "VAREPOP-APOLLO"
+      }, 
+      {
+        "program": {
+          "name": "BEATAML1.0"
+        }, 
+        "dbgap_accession_number": "phs001628", 
+        "name": "Clinical Resistance to Crenolanib in Acute Myeloid Leukemia Due to Diverse Molecular Mechanisms", 
+        "id": "BEATAML1.0-CRENOLANIB"
+      }, 
+      {
+        "program": {
+          "name": "TARGET"
+        }, 
+        "dbgap_accession_number": "phs000467", 
+        "name": "Neuroblastoma", 
+        "id": "TARGET-NBL"
+      }, 
+      {
+        "program": {
+          "name": "FM"
+        }, 
+        "dbgap_accession_number": "phs001179", 
+        "name": "Foundation Medicine Adult Cancer Clinical Dataset (FM-AD)", 
+        "id": "FM-AD"
+      }, 
+      {
+        "program": {
+          "name": "TCGA"
+        }, 
+        "dbgap_accession_number": null, 
+        "name": "Head and Neck Squamous Cell Carcinoma", 
+        "id": "TCGA-HNSC"
+      }, 
+      {
+        "program": {
+          "name": "TCGA"
+        }, 
+        "dbgap_accession_number": null, 
+        "name": "Brain Lower Grade Glioma", 
+        "id": "TCGA-LGG"
+      }, 
+      {
+        "program": {
+          "name": "TCGA"
+        }, 
+        "dbgap_accession_number": null, 
+        "name": "Sarcoma", 
+        "id": "TCGA-SARC"
+      }, 
+      {
+        "program": {
+          "name": "TCGA"
+        }, 
+        "dbgap_accession_number": null, 
+        "name": "Esophageal Carcinoma", 
+        "id": "TCGA-ESCA"
+      }, 
+      {
+        "program": {
+          "name": "TCGA"
+        }, 
+        "dbgap_accession_number": null, 
+        "name": "Uterine Corpus Endometrial Carcinoma", 
+        "id": "TCGA-UCEC"
+      }
+    ], 
+    "pagination": {
+      "count": 10, 
+      "sort": "", 
+      "from": 0, 
+      "page": 1, 
+      "total": 52, 
+      "pages": 6, 
+      "size": 10
+    }
+  }, 
+  "warnings": {}
+}
