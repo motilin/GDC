@@ -1,63 +1,46 @@
 import helpergdc as hg
 from gdcClasses.Connection import Connection
+from gdcClasses.CaseBin import CaseBin
+from gdcClasses.Drug import Drug
+from gdcClasses.File import File
 from gdcClasses.Case import Case
 
 GDC_DB = Connection()
 
-# casesCollection = hg.getCasesCollection(GDC_DB)  # download cases data
-casesCollection = hg.readCasesCollection(GDC_DB)  # read cases data from local db
+# hg.download_gdc_data(GDC_DB)
 
-# clinicalDrugTable = hg.getClinicalDrugTable(casesCollection)  # download clinical_drug table
-clinicalDrugTable = hg.readClinicalDrugTable() # read clinical drug table from local disk
+schemas = hg.update_clinical_supplement_data(GDC_DB)
 
-caseDocument = casesCollection.find_one({"case_id":"d2df20d4-6704-41e6-b33d-616225bd737c"})
-case = Case(caseDocument, remote=True)
-case.addClinicalDrugData(clinicalDrugTable)
+# N = 10
+# responseDf = Drug.getDrugsFrequencyTable(GDC_DB)
+# topNdf = responseDf.iloc[:N, ]
+# topNdrugs = topNdf.index.to_list()
 
-serializedCase = case.serialize()
-caseCopy = Case(serializedCase)
+# fileTypes = File.getFileFrequencyTable(GDC_DB)
+# caseBin = CaseBin(GDC_DB)
+# fileDf = caseBin.drugs(topNdrugs).get().getFileFrequencyTable(topNdrugs, "Aggregated Somatic Mutation")
+#
+# hg.barPlot(topNdf.iloc[:, 1:], fileDf.iloc[:, 1:])
 
-# casesCollection = hg.serializeCases(filesCollection, clinicalDrugTable) # store files and clinical_drug data
+# xml1 = "/home/motti/mottip/ChemotherapiesResistance/analysis/GDC/downloads/20190910-182457/3fe4d42f-9a4d-4928-895b-4674d4aba96e/nationwidechildrens.org_clinical.TCGA-QD-A8IV.xml"
+# xml2 = "/home/motti/mottip/ChemotherapiesResistance/analysis/GDC/downloads/20190910-182457/9cbfb435-4ed0-4780-8750-5e72dce19891/nationwidechildrens.org_clinical.TCGA-DD-AAEA.xml"
+# xml3 = "/home/motti/mottip/ChemotherapiesResistance/analysis/GDC/downloads/20190912-133548/20190912-133549_nationwidechildrens.org_clinical.TCGA-OU-A5PI.xml"
+# schema1 = "/home/motti/Downloads/TCGA_BCR.THCA_Clinical.xsd"
+# schema2 = "/home/motti/Downloads/TCGA_BCR.LIHC_Clinical.xsd"
 
-# filesCollection = hg.getFilesCollection(GDC_DB)  # download file data
-# filesCollection = hg.readFilesCollection(GDC_DB)   # read stored file data
+# import xmltodict
+# with open(xml1) as f:
+#     doc1 = xmltodict.parse(f.read())
+# with open(xml2) as f:
+#     doc2 = xmltodict.parse(f.read())
+# with open(xml3) as f:
+#     doc3 = xmltodict.parse(f.read())
+#
+# doc1 = File.clean_xml(doc1)
+# doc2 = File.clean_xml(doc2)
+# doc3 = File.clean_xml(doc3)
 
-# retrieve data from the GDC :
-# drugTable = hg.getTable("clinical", "drug")
-# drugTable.to_csv("./drugTable.csv")
-# patientTable = hg.getTable("clinical", "patient")
-# patientTable.to_csv("./patientTable.csv")
+# case = Case.get_case(GDC_DB, "C35E4390-2809-4D88-86F3-208DE05B338A".lower())
+# case = hg.update_clinical_data(doc3, GDC_DB)
 
-# drugTable = pd.read_csv("./drugTable.csv", index_col=0)
-
-# drugTable["bcr_patient_uuid"] = drugTable["bcr_patient_uuid"].str.lower()
-# drugTable["drug_name"] = drugTable["drug_name"].str.lower()
-# drugTable["measure_of_response"] = drugTable["measure_of_response"].str.lower()
-# drugs = hg.getDrugs("./drugs.json")
-# drugTable["drug_name"] = drugTable["drug_name"].map(lambda x: drugs[x] if x in drugs.keys() else x)
-
-'''
-
-monoDrugTable = hg.getMonoTable(drugTable)
-
-##
-
-tableDrugResponse = hg.summarizeResponse(hg.getResponse(drugTable))
-tableDrugSummary = hg.tablizeResponseSummaryAll(tableDrugResponse)
-
-print("\ndrug table:")
-print("number of patients: " + str(drugTable["bcr_patient_uuid"].unique().shape[0]))
-print("number of drugs: " + str(drugTable["drug_name"].unique().shape[0]))
-
-monoTableDrugResponse = hg.summarizeResponse(hg.getResponse(monoDrugTable))
-monoTableDrugSummary = hg.tablizeResponseSummaryAll(monoTableDrugResponse)
-
-print("\nmono therapy table:")
-print("number of patients: " + str(monoDrugTable["bcr_patient_uuid"].unique().shape[0]))
-print("number of drugs: " + str(monoDrugTable["drug_name"].unique().shape[0]))
-
-fileTypes = filesCollection.distinct("data_type")
-# for fileType in fileTypes:
-#     hg.plotDrugSummaryWithDataType(tableDrugResponse, fileType, 10, fileData)
-
-'''
+# case = Case.get_case(GDC_DB,"a5be4e42-cb6c-4e67-8547-45dbd058bb95")

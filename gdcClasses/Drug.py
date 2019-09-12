@@ -2,27 +2,28 @@ import constants as c
 import pandas as pd
 import numpy as np
 from copy import deepcopy
+import helpergdc as hg
 
 
 class Drug:
 
-    def __init__(self, clinicalDrugData, remote=False):
+    def __init__(self, clinical_drug_document, remote=False):
         self.name = None
         self.drug_ids = set()
         self.responses = []
         self.numeric_response = 0
         if remote:
-            self.load_remote(clinicalDrugData)
+            self.load_remote(clinical_drug_document)
         else:
-            self.deserialize(clinicalDrugData)
+            self.deserialize(clinical_drug_document)
 
-    def load_remote(self, clinicalDrugTableRow):
-        drug_id = clinicalDrugTableRow[1]["bcr_drug_uuid"]
+    def load_remote(self, clinical_drug_table_row):
+        drug_id = clinical_drug_table_row[1]["bcr_drug_uuid"]
         if not self.addId(drug_id):
             raise LookupError("drug_id duplication")
-        name = clinicalDrugTableRow[1]["drug_name"]
+        name = clinical_drug_table_row[1]["drug_name"]
         self.setName(name)
-        response = clinicalDrugTableRow[1]["measure_of_response"]
+        response = clinical_drug_table_row[1]["measure_of_response"]
         self.addResponse(response)
 
     def serialize(self):
@@ -30,11 +31,11 @@ class Drug:
         drug.drug_ids = list(drug.drug_ids)
         return drug.__dict__
 
-    def deserialize(self, clinicalDrugDocument):
-        self.name = clinicalDrugDocument["name"]
-        self.drug_ids = set(clinicalDrugDocument["drug_ids"])
-        self.responses = clinicalDrugDocument["responses"]
-        self.numeric_response = float(clinicalDrugDocument["numeric_response"])
+    def deserialize(self, clinical_drug_document):
+        self.name = clinical_drug_document["name"]
+        self.drug_ids = set(clinical_drug_document["drug_ids"])
+        self.responses = clinical_drug_document["responses"]
+        self.numeric_response = float(clinical_drug_document["numeric_response"])
 
     def merge(self, new_drug):
         for drug_id in new_drug.drug_ids:
@@ -79,3 +80,15 @@ class Drug:
             self.numeric_response = np.mean(num_list)
         else:
             self.numeric_response = 0
+
+    def getDrugsFrequencyTable(connection):
+        casesCollection = hg.readCasesCollection(connection)
+        responseDict = dict()
+        for cur in casesCollection.find({"drugs.0": {"$exists": True}}, {"drugs.name", "drugs.numeric_response"}):
+            for drug in cur["drugs"]:
+                if not drug["name"] in responseDict:
+                    responseDict[drug["name"]] = np.zeros(5)
+                responseDict[drug["name"]][hg.roundResponse(drug["numeric_response"])] += 1
+        responseDf =  pd.DataFrame(responseDict).transpose()
+        responseDf["sum"] = responseDf[[1, 2, 3, 4]].sum(1)
+        return responseDf.sort_values("sum", ascending=False).drop("sum", 1)

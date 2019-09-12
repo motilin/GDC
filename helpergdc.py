@@ -5,14 +5,24 @@ import re
 import os
 import glob
 import pandas as pd
-import constants as c
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from pymongo import MongoClient
 from gdcClasses.Case import Case
-from gdcClasses.File import File
 from gdcClasses.Drug import Drug
+import constants as c
+import time
+from xml.parsers.expat import ExpatError
+import xmltodict
+from gdcClasses.Connection import Connection
+from gdcClasses.File import File
+from gdcClasses.CaseBin import CaseBin
+from collections import OrderedDict
+from gdcClasses.Parser import Parser
+
+matplotlib.use('TkAgg')
+plt.interactive(False)
 
 ## matplotlib fonts:
 font = {'family': 'DejaVu Sans',
@@ -148,6 +158,7 @@ def downloadFiles(fileIdList):
     files = glob.glob(targetDir + "/*/" + "/*.txt")
     return files
 
+
 def getClinicalDrugTable(casesCollection):
     pipeline = [
         {"$project":
@@ -195,9 +206,11 @@ def getClinicalDrugTable(casesCollection):
     table.to_csv("clinicalDrugTable.csv")
     return table
 
+
 def readClinicalDrugTable():
     table = pd.read_csv("clinicalDrugTable.csv", index_col=0)
     return table
+
 
 ## parses a string of drug names (as appear in uptodate) into a list ##
 def getDrugNames(drugNamesString):
@@ -205,6 +218,7 @@ def getDrugNames(drugNamesString):
     r = re.compile("(.+) \(.*\)")
     names = [r.match(x).group(1).lower().strip() for x in names]
     return names
+
 
 ## returns a dictionary of someName:genericName for the drugs that appear in drugFile ##
 def getDrugs(drugsFile):
@@ -235,6 +249,15 @@ def mapResponse(response):
         return 0
     else:
         return c.measureOfResponse[response]
+
+
+def roundResponse(numericResponse):
+    if numericResponse == 0:
+        return 0
+    elif numericResponse <= 4:
+        return int(np.ceil(numericResponse))
+    else:
+        raise ValueError("numeric response should be in the range of 0 to 4")
 
 
 ## returns a table with patients that received a mono therapy ## here missing of response is not removed
@@ -482,6 +505,7 @@ def plotMultiMonoDrugSummary(tableDrugSummary, monoTableDrugSummary, drugName):
     plt.savefig(FIG_DIR + "/" + drugName, format=FIG_FORMAT, dpi=FIG_DPI)
     plt.show()
 
+
 def deserializeDrug(index, clinicalDrugTable):
     name = clinicalDrugTable.iloc[index]["drug_name"].strip()
     drug_id = clinicalDrugTable.iloc[index]["bcr_drug_uuid"].strip()
@@ -491,18 +515,19 @@ def deserializeDrug(index, clinicalDrugTable):
     drug.addResponses([response])
     return drug
 
+
 def deserializeCase(caseDocument, clinicalDrugTable):
     case_id = caseDocument["case_id"]
     case = Case(case_id).deserialize(caseDocument, clinicalDrugTable)
     return case
 
 
-
 def serializeCases(case):
     return None
 
+
 ## returns a list of size s, from point f, of the files in gdc ##
-def getCasesCollectionHelper(f, s):
+def download_GDC_data_helper(f, s):
     endpt = 'https://api.gdc.cancer.gov/cases'
 
     fields = [
@@ -595,24 +620,141 @@ def getCasesCollectionHelper(f, s):
     return result
 
 
-## returns a dictionary of all the cases in gdc. The values are the files related to the cases ##
-def getCasesCollection(connection):
+
+def readCasesCollection(connection, remote=False):
+    if remote:
+        return connection.get().cases
+    else:
+        return connection.get().local
+
+
+def bar_plot(firstDf, secondDf=None, labels=c.responses[1:], width=0.2, gap=5, fontSize=3, dpi=300):
+    if firstDf.shape[1] != len(labels):
+        raise ValueError("number of labels don't match number of columns")
+    if secondDf is not None:
+        if firstDf.index.to_list() != secondDf.index.to_list():
+            raise IndexError("indices in the two tables aren't identical")
+        if firstDf.shape[1] != secondDf.shape[1]:
+            raise IndexError("column numbers in the two tables aren't equal")
+    fig = plt.Figure()
+    ax = fig.add_subplot(111)
+    rects = []
+    for i, name in enumerate(firstDf.index):
+        for j in range(firstDf.shape[1]):
+            x = i + 1 - 1.5 * width + j * width
+            firstValue = firstDf.iloc[i, j]
+            rects.append(ax.bar(x, firstValue, width, label=labels[j], color=c.responseFirstColors[j]))
+            if secondDf is None:
+                ax.text(x, firstValue + gap, str(firstValue), horizontalalignment='center', size=fontSize)
+            else:
+                secondValue = secondDf.iloc[i, j]
+                rects.append(ax.bar(x, secondValue, width, label=labels[j], color=c.responseSecondColors[j]))
+                ax.text(x, firstValue + gap, str(firstValue) + "\nof\n" + str(secondValue),
+                        horizontalalignment='center', size=fontSize)
+    ax.set_xticks(np.arange(firstDf.shape[0]) + 1)
+    ax.set_xticklabels(firstDf.index.to_list(), size=fontSize)
+    ax.set_ylabel('# patients')
+    ax.legend
+    file_name = time.strftime("%Y%m%d-%H%M%S") + ".png"
+    fig.savefig("./plots/" + file_name, format='png', dpi=300)
+    os.system("eog ./plots/" + file_name)
+    return None
+
+
+def update_clinical_data(doc: OrderedDict, connection: Connection):
+    case_id = File.get_value(doc, 'patient', 'bcr_patient_uuid')
+    project_code = File.get_value(doc, 'admin', 'project_code')
+    disease_code = File.get_value(doc, 'admin', 'disease_code')
+    day_of_dcc_upload = File.get_value(doc, 'admin', 'day_of_dcc_upload')
+    month_of_dcc_upload = File.get_value(doc, 'admin', 'month_of_dcc_upload')
+    year_of_dcc_upload = File.get_value(doc, 'admin', 'year_of_dcc_upload')
+    day_of_form_completion = File.get_value(doc, 'patient', 'day_of_form_completion')
+    month_of_form_completion = File.get_value(doc, 'patient', 'month_of_form_completion')
+    year_of_form_completion = File.get_value(doc, 'patient', 'year_of_form_completion')
+    patient_withdrawal = ('true' == File.get_value(doc, 'admin', 'patient_withdrawal'))
+    patient_id = File.get_value(doc, 'patient', 'bcr_patient_uuid')
+    days_to_birth = File.get_value(doc, 'patient', 'days_to_birth')
+    gender = File.get_value(doc, 'patient', 'gender')
+    race_list = File.get_value(doc, 'patient', 'race_list')
+    ethnicity = File.get_value(doc, 'patient', 'ethnicity')
+    history_of_neoadjuvant_treatment = File.get_value(doc, 'patient', 'history_of_neoadjuvant_treatment')
+    vital_status = File.get_value(doc, 'patient', 'vital_status')
+    days_to_last_followup = File.get_value(doc, 'patient', 'days_to_last_followup')
+    days_to_death = File.get_value(doc, 'patient', 'days_to_death')
+    person_neoplasm_cancer_status = File.get_value(doc, 'patient', 'person_neoplasm_cancer_status')
+    medical_history = File.get_value(doc, 'patient', 'patient_personal_medical_history_thyroid_gland_disorder_names')
+    medical_history_other = File.get_value(doc, 'patient', 'patient_personal_medical_history_thyroid_other_specify_text')
+    medical_history.union(medical_history_other)
+    radiation_exposure_risk = File.get_value(doc, 'patient', 'person_lifetime_risk_radiation_exposure_indicator')
+    tumor_tissue_site = File.get_value(doc, 'patient', 'tumor_tissue_site')
+    histological_type = File.get_value(doc, 'patient', 'histological_type')
+    histological_type_other = File.get_value(doc, 'patient', 'histological_type_other')
+    histological_type.union(histological_type_other)
+    neoplasm_dimension = File.get_value(doc, 'patient', 'neoplasm_dimension')
+    days_to_initial_pathologic_diagnosis = File.get_value(doc, 'patient', 'days_to_initial_pathologic_diagnosis')
+    age_at_initial_pathologic_diagnosis = File.get_value(doc, 'patient', 'age_at_initial_pathologic_diagnosis')
+    year_of_initial_pathologic_diagnosis = File.get_value(doc, 'patient', 'year_of_initial_pathologic_diagnosis')
+    lymph_node_examined_count = File.get_value(doc, 'patient', 'lymph_node_examined_count')
+    positive_lymph_nodes_count = File.get_value(doc, 'patient', 'number_of_lymphnodes_positive_by_he')
+    metastatic_site = File.get_value(doc, 'patient', 'metastatic_site')
+    metastatic_site_other = File.get_value(doc, 'patient', 'other_metastatic_site')
+    metastatic_site.union(metastatic_site_other)
+
+    case = Case.get_case(connection, case_id.pop())
+    # update the case
+    case.save(connection)
+    return case
+
+def update_follow_up(file_name: str, connection: Connection):
+    return None
+
+
+def update_clinical_supplement_data(connection: Connection):
+    cases_collection = readCasesCollection(connection)
+    clinical_files = set()
+    stage1 = dict()
+    stage1["$project"] = dict()
+    stage1["$project"]["files"] = dict()
+    stage1["$project"]["files"]["$filter"] = dict()
+    stage1["$project"]["files"]["$filter"]["input"] = "$files"
+    stage1["$project"]["files"]["$filter"]["as"] = "file"
+    stage1["$project"]["files"]["$filter"]["cond"] = dict()
+    stage1["$project"]["files"]["$filter"]["cond"]["$eq"] = ["$$file.data_type", "Clinical Supplement"]
+    for cur in cases_collection.aggregate([stage1]):
+        for file in cur["files"]:
+            clinical_files.add(file["file_id"])
+    print("downloading Clinical Supplement files ...")
+    clinical_files = File.download_files(list(clinical_files))
+    non_xml = []
+    print("updating local database with clinical supplement data ...")
+    schemas = set()  # remove later
+    for file in clinical_files:
+        try:
+            doc = Parser(file).parse()
+        except TypeError:
+            non_xml.append(file)
+        # update_clinical_data(doc, connection)
+        schemas.add(doc)   # remove later
+    return schemas # remove later
+    for file_name in non_xml:
+        update_follow_up(file_name, connection)
+
+
+def download_gdc_data(connection: Connection):
     connection.get().drop_collection("cases")
-    casesCollection = connection.get().cases
+    case_collection = connection.get().cases
+    print("downloading cases data")
     f = 0
     result = ["init"]
     while len(result) != 0:
-        result = getCasesCollectionHelper(f, SIZE)
+        result = download_GDC_data_helper(f, SIZE)
         f += SIZE
         try:
-            casesCollection.insert_many(result)
+            case_collection.insert_many(result)
         except TypeError as error:
             print("cases: end")
-    return casesCollection
-
-
-def readCasesCollection(connection, local=False):
-    if local:
-        return connection.get().local
-    else:
-        return connection.get().cases
+    print("storing cases data in local database")
+    for caseDocument in case_collection.find():
+        case = Case(caseDocument, remote=True)
+        case.save(connection)
+    update_clinical_supplement_data(connection)

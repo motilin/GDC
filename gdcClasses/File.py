@@ -1,5 +1,18 @@
+import json
+from typing import List, Any
+import constants as c
 import datetime
 from dateutil.parser import parse
+import helpergdc as hg
+import pandas as pd
+import requests
+import time
+import os
+import re
+import glob
+import copy
+from .Connection import Connection
+from collections import OrderedDict
 
 
 class File:
@@ -20,51 +33,157 @@ class File:
     def load_remote(self, file_document):
         keys = file_document.keys()
         if "file_id" in keys:
-            self.setFileId(file_document["file_id"])
+            self.set_file_id(file_document["file_id"])
         else:
             raise LookupError("missing file_id")
         if "created_datetime" in keys:
-            self.setCreatedDatetime(file_document["created_datetime"])
+            self.set_created_datetime(file_document["created_datetime"])
         if "data_format" in keys:
-            self.setDataFormat(file_document["data_format"])
+            self.set_data_format(file_document["data_format"])
         if "data_type" in keys:
-            self.setDataType(file_document["data_type"])
+            self.set_data_type(file_document["data_type"])
         if "experimental_strategy" in keys:
-            self.setExperimentalStrategy(file_document["experimental_strategy"])
+            self.set_experimental_strategy(file_document["experimental_strategy"])
         if "md5sum" in keys:
-            self.setMd5sum(file_document["md5sum"])
+            self.set_md5sum(file_document["md5sum"])
         if "file_name" in keys:
-            self.setFileName(file_document["file_name"])
+            self.set_file_name(file_document["file_name"])
 
     def serialize(self):
         return self.__dict__
 
     def deserialize(self, file_document):
-        self.setFileId(file_document["file_id"])
+        self.set_file_id(file_document["file_id"])
         self.created_datetime = file_document["created_datetime"]
-        self.setDataFormat(file_document["data_format"])
-        self.setDataType(file_document["data_type"])
-        self.setExperimentalStrategy(file_document["experimental_strategy"])
-        self.setMd5sum(file_document["md5sum"])
-        self.setFileName(file_document["file_name"])
+        self.set_data_format(file_document["data_format"])
+        self.set_data_type(file_document["data_type"])
+        self.set_experimental_strategy(file_document["experimental_strategy"])
+        self.set_md5sum(file_document["md5sum"])
+        self.set_file_name(file_document["file_name"])
 
-    def setFileId(self, file_id):
+    def set_file_id(self, file_id):
         self.file_id = file_id
 
-    def setDataType(self, data_type):
+    def set_data_type(self, data_type):
         self.data_type = data_type
 
-    def setCreatedDatetime(self, created_datetime):
-        self.created_datetime = parse(created_datetime).date()
+    def set_created_datetime(self, created_datetime):
+        self.created_datetime = datetime.datetime.combine(parse(created_datetime).date(), datetime.time.min)
 
-    def setFileName(self, file_name):
+    def set_file_name(self, file_name):
         self.file_name = file_name
 
-    def setMd5sum(self, md5sum):
+    def set_md5sum(self, md5sum):
         self.md5sum = md5sum
 
-    def setDataFormat(self, data_format):
+    def set_data_format(self, data_format):
         self.data_format = data_format
 
-    def setExperimentalStrategy(self, experimental_strategy):
+    def set_experimental_strategy(self, experimental_strategy):
         self.experimental_strategy = experimental_strategy
+
+    @staticmethod
+    def get_file_frequency_table(connection: Connection):
+        cases_collection = hg.readCasesCollection(connection)
+        file_dict = dict()
+        for cur in cases_collection.find({}, {"files.data_type", "files.created_datetime"}):
+            for file in cur["files"]:
+                data_type = file["data_type"]
+                year = file["created_datetime"].year
+                if data_type not in file_dict.keys():
+                    file_dict[data_type] = dict()
+                    file_dict[data_type][year] = 1
+                else:
+                    if year not in file_dict[data_type].keys():
+                        file_dict[data_type][year] = 1
+                    else:
+                        file_dict[data_type][year] += 1
+        table = pd.DataFrame(file_dict).transpose().fillna(0)
+        table["total"] = table.sum(1)
+        return table.sort_values("total", ascending=False)
+
+
+    @staticmethod
+    def download_files(file_id_list: list, bulk: int = 100) -> list:
+        """
+        :param file_id_list: list of file ids to be downloaded
+        :type bulk: int
+        """
+        dir_name = c.DOWNLOAD_DIR + "/" + time.strftime("%Y%m%d-%H%M%S")
+        os.system("mkdir " + dir_name)
+        reminder: List[Any] = copy.deepcopy(list(file_id_list))
+        while len(reminder) > bulk:
+            sub_list = reminder[:bulk]
+            del reminder[:bulk]
+            File.download_bulk(sub_list, dir_name)
+        File.download_bulk(reminder, dir_name)
+        gz_files = glob.glob(dir_name + "/*.tar.gz")
+        for gzFile in gz_files:
+            os.system("tar xvzf " + gzFile + " -C " + dir_name)
+        files = glob.glob(dir_name + "/*/*")
+        return files
+
+    @staticmethod
+    def download_bulk(fileId_id_ist: list, dir_name: str):
+        """
+        :param fileId_id_ist: list of file ids to be downloaded
+        :type dir_name: str
+        """
+        endpt = 'https://api.gdc.cancer.gov/data'
+        params = {
+            "ids": fileId_id_ist
+        }
+        response = requests.post(endpt, data=json.dumps(params), headers={"Content-Type": "application/json"})
+        response_head_cd = response.headers["Content-Disposition"]
+        file_name = re.findall("filename=(.+)", response_head_cd)[0]
+        file_name = dir_name + "/" + time.strftime("%Y%m%d-%H%M%S") + "_" + file_name
+        with open(file_name, "wb") as output_file:
+            output_file.write(response.content)
+        return True
+
+    @staticmethod
+    def clean_xml_helper(doc):
+        if type(doc) == OrderedDict or type(doc) == dict:
+            keys = copy.deepcopy(list(doc.keys()))
+            for key in keys:
+                new_key = key.split(":")[-1]
+                doc[new_key] = File.clean_xml(doc[key])
+                if new_key != key:
+                    del doc[key]
+            return doc
+        else:
+            return doc
+
+    @staticmethod
+    def clean_xml(doc):
+        File.clean_xml_helper(doc)
+        return json.loads(json.dumps(doc))
+
+    @staticmethod
+    def get_value(doc_dict, *levels):
+        levels = list(levels)
+        for level in levels:
+            if level in doc_dict.keys():
+                doc_dict = doc_dict[level]
+            else:
+                return set()
+        return File.get_value_helper(doc_dict)
+
+    @staticmethod
+    def get_value_helper(doc_dict, value_set=None):
+        if value_set is None:
+            value_set = set()
+        if type(doc_dict) == OrderedDict or type(doc_dict) == dict:
+            if "#text" in doc_dict.keys():
+                value_set.add(doc_dict["#text"].lower())
+            else:
+                for key in doc_dict.keys():
+                    value_set.union(File.get_value_helper(doc_dict[key], value_set))
+        return value_set
+
+    @staticmethod
+    def get_dict_depth(dict_doc, level=1):
+        if not isinstance(dict_doc, dict) or not dict_doc:
+            return level
+        return max(File.get_dict_depth(dict_doc[key], level + 1) for key in dict_doc)
+

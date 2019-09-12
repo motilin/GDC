@@ -27,9 +27,15 @@ measureOfResponse = {
 
 responses = ["unknown", "complete response", "partial response", "stable disease", "clinical progressive disease"]
 
+responseFirstColors = ["darkgreen", "blue", "orange", "red"]
+responseSecondColors = ["forestgreen", "cornflowerblue", "bisque", "lightcoral"]
+
 nullDrugs = ['[not available]', '[unknown]', 'chemo, nos']
 
 nullDiagnosis = ['not reported']
 
 drugsWithTypeColors = [["darkgreen", "forestgreen"], ["blue", "cornflowerblue"], ["orange", "bisque"], ["red", "lightcoral"]]
 
+DOWNLOAD_DIR = "/home/motti/mottip/ChemotherapiesResistance/analysis/GDC/downloads"
+
+SCHEMA_FILE = "/home/motti/mottip/pycharmProjects/GDC/data/schema_list"
