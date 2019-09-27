@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.agent_total_dose_count.@cde.2180805
+tcga_bcr.patient.follow_ups.follow_up.treatment.concurrent_rx_tx_info.concurrent_rx_tx.agent_total_dose_count.@cde.2180805
+tcga_bcr.patient.treatment.concurrent_rx_tx_info.concurrent_rx_tx.agent_total_dose_count.@cde.2180805

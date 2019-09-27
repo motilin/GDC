@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.concurrent_chemotherapy_dose.@cde.3166172
+tcga_bcr.patient.follow_ups.follow_up.treatment.concurrent_rx_tx_info.concurrent_rx_tx.concurrent_chemotherapy_dose.@cde.3166172
+tcga_bcr.patient.treatment.concurrent_rx_tx_info.concurrent_rx_tx.concurrent_chemotherapy_dose.@cde.3166172

@@ -1,0 +1,4 @@
+tcga_bcr.patient.follow_ups.follow_up.radiation_type_notes.@cde.2195477
+tcga_bcr.patient.follow_ups.follow_up.treatment.radiation_therapy_info.radiation_type_notes.@cde.2195477
+tcga_bcr.patient.radiations.radiation.radiation_type_notes.@cde.2195477
+tcga_bcr.patient.treatment.radiation_therapy_info.radiation_type_notes.@cde.2195477

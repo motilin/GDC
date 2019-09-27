@@ -1,0 +1,4 @@
+tcga_bcr.patient.follow_ups.follow_up.followup_treatment_success.@cde.3104050
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.followup_treatment_success.@cde.3104050
+tcga_bcr.patient.follow_ups.follow_up.primary_therapy_outcome_success_at_followup.@cde.3104050
+tcga_bcr.patient.new_tumor_events.new_tumor_event.followup_treatment_success.@cde.3104050

@@ -1,0 +1,5 @@
+tcga_bcr.patient.follow_ups.follow_up.radiation_therapy.@cde.2005312
+tcga_bcr.patient.follow_ups.follow_up.treatment.radiation_therapy.@cde.2005312
+tcga_bcr.patient.primary_pathology.radiation_therapy.@cde.2005312
+tcga_bcr.patient.radiation_therapy.@cde.2005312
+tcga_bcr.patient.treatment.radiation_therapy.@cde.2005312

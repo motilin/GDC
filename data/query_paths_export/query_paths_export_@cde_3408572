@@ -1,0 +1,4 @@
+tcga_bcr.patient.follow_ups.follow_up.days_to_additional_surgery_locoregional_procedure.@cde.3408572
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.days_to_additional_surgery_locoregional_procedure.@cde.3408572
+tcga_bcr.patient.new_tumor_events.new_tumor_event.days_to_additional_surgery_locoregional_procedure.@cde.3408572
+tcga_bcr.patient.new_tumor_events.new_tumor_event.locoregional_procedure.days_to_additional_surgery_locoregional_procedure.@cde.3408572

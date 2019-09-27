@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.radiation_supplemental.days_to_radiation_therapy_start.@cde.3008313
+tcga_bcr.patient.omfs.omf.radiation_tx.days_to_radiation_therapy_start.@cde.3008313
+tcga_bcr.patient.radiations.radiation.days_to_radiation_therapy_start.@cde.3008313

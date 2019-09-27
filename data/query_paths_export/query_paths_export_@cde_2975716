@@ -1,0 +1,7 @@
+tcga_bcr.patient.ablations.ablation.day_of_form_completion.@cde.2975716
+tcga_bcr.patient.day_of_form_completion.@cde.2975716
+tcga_bcr.patient.drugs.drug.day_of_form_completion.@cde.2975716
+tcga_bcr.patient.follow_ups.follow_up.day_of_form_completion.@cde.2975716
+tcga_bcr.patient.omfs.omf.day_of_form_completion.@cde.2975716
+tcga_bcr.patient.radiations.radiation.day_of_form_completion.@cde.2975716
+tcga_bcr.patient.treatments.treatment.day_of_form_completion.@cde.2975716

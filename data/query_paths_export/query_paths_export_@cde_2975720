@@ -1,0 +1,7 @@
+tcga_bcr.patient.ablations.ablation.year_of_form_completion.@cde.2975720
+tcga_bcr.patient.drugs.drug.year_of_form_completion.@cde.2975720
+tcga_bcr.patient.follow_ups.follow_up.year_of_form_completion.@cde.2975720
+tcga_bcr.patient.omfs.omf.year_of_form_completion.@cde.2975720
+tcga_bcr.patient.radiations.radiation.year_of_form_completion.@cde.2975720
+tcga_bcr.patient.treatments.treatment.year_of_form_completion.@cde.2975720
+tcga_bcr.patient.year_of_form_completion.@cde.2975720

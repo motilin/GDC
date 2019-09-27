@@ -1,0 +1,5 @@
+tcga_bcr.patient.follow_ups.follow_up.i_131_first_administered_dose.@cde.3232898
+tcga_bcr.patient.follow_ups.follow_up.new_tumor.i_131_first_administered_dose.@cde.3232898
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.i_131_first_administered_dose.@cde.3232898
+tcga_bcr.patient.i_131_first_administered_dose.@cde.3232898
+tcga_bcr.patient.new_tumor_events.new_tumor_event.i_131_first_administered_dose.@cde.3232898

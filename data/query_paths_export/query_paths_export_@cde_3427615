@@ -1,0 +1,4 @@
+tcga_bcr.patient.follow_ups.follow_up.additional_radiation_therapy.@cde.3427615
+tcga_bcr.patient.follow_ups.follow_up.new_tumor.additional_radiation_therapy.@cde.3427615
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.additional_radiation_therapy.@cde.3427615
+tcga_bcr.patient.new_tumor_events.new_tumor_event.additional_radiation_therapy.@cde.3427615

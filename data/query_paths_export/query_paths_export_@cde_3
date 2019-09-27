@@ -1,0 +1,3 @@
+tcga_bcr.patient.lymph_node_examined_count.@cde.3
+tcga_bcr.patient.number_of_lymphnodes_examined.@cde.3
+tcga_bcr.patient.primary_pathology.lymph_node_examined_count.@cde.3

@@ -22,7 +22,8 @@ measureOfResponse = {
         '[not applicable]' : 0,
         'complete response' : 1,
         '[not available]' : 0, 
-        '[discrepancy]' : 0
+        '[discrepancy]' : 0,
+        None: 0
         }
 
 responses = ["unknown", "complete response", "partial response", "stable disease", "clinical progressive disease"]
@@ -39,3 +40,41 @@ drugsWithTypeColors = [["darkgreen", "forestgreen"], ["blue", "cornflowerblue"],
 DOWNLOAD_DIR = "/home/motti/mottip/ChemotherapiesResistance/analysis/GDC/downloads"
 
 SCHEMA_FILE = "/home/motti/mottip/pycharmProjects/GDC/data/schema_list"
+
+SCHEMA_DIR = DOWNLOAD_DIR + "/schemas/tcga.nci/bcr/xml/clinical"
+
+SCHEMA_MAIN_PATH = DOWNLOAD_DIR + "/schemas"
+
+QUERIES_DIR = "/home/motti/mottip/pycharmProjects/GDC/queries"
+
+CDE_LIST = './data/cde_list'
+
+QUERY_PATHS_PREFIX = './data/query_paths_export_'
+
+XMLS_PER_SCHEMA_FILE = './data/xmls_per_schema.csv'
+
+DRUGS_XPATHS = [
+        'regimen_number:int:/rx:regimen_number/#text',
+        'total_dose:int:/rx:total_dose/#text',
+        'total_dose_units:str:/rx:total_dose_units/#text',
+        'prescribed_dose:int:/rx:prescribed_dose/#text',
+        'prescribed_dose_units:str:/rx:prescribed_dose_units/#text',
+        'number_of_cycles:int:/rx:number_cycles/#text',
+        'days_to_drug_therapy_start:int:/rx:days_to_drug_therapy_start/#text',
+        'days_to_drug_therapy_end:int:/rx:days_to_drug_therapy_end/#text',
+        'name:str:/rx:drug_name/#text',
+        'id:str:/rx:bcr_drug_uuid/#text',
+        'regimen_indication:str:/clin_shared:regimen_indication/#text',
+        'regimen_indication_notes:str:/clin_shared:regimen_indication_notes/#text',
+        'therapy_ongoing:str:/rx:therapy_ongoing/#text',
+        'measure_of_response:str:/clin_shared:measure_of_response/#text',
+        'day_of_form_completion:int:/clin_shared:day_of_form_completion/#text',
+        'month_of_form_completion:int:/clin_shared:month_of_form_completion/#text',
+        'year_of_form_completion:int:/clin_shared:year_of_form_completion/#text'
+]
+
+TRUE = 'true'
+
+TOKEN_FILE = './data/gdc-user-token.2019-09-23T05_55_31.624Z.txt'
+
+LOGGING_FILE = './data/debug.log'

@@ -1,0 +1,5 @@
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.progression_determined_by.@cde.2786205
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.progression_determined_by_list.progression_determined_by.@cde.2786205
+tcga_bcr.patient.follow_ups.follow_up.progression_determined_by_list.progression_determined_by.@cde.2786205
+tcga_bcr.patient.new_tumor_events.new_tumor_event.progression_determined_by.@cde.2786205
+tcga_bcr.patient.new_tumor_events.new_tumor_event.progression_determined_by_list.progression_determined_by.@cde.2786205

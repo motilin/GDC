@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.brachytherapy_first_reference_point_administered_total_dose.@cde.3151100
+tcga_bcr.patient.follow_ups.follow_up.treatment.radiation_therapy_info.brachytherapy_first_reference_point_administered_total_dose.@cde.3151100
+tcga_bcr.patient.treatment.radiation_therapy_info.brachytherapy_first_reference_point_administered_total_dose.@cde.3151100

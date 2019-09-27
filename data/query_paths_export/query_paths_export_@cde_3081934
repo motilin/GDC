@@ -1,0 +1,5 @@
+tcga_bcr.patient.histological_type.@cde.3081934
+tcga_bcr.patient.primary_pathology.histological_type.@cde.3081934
+tcga_bcr.patient.primary_pathology.histological_type_list.histological_type.@cde.3081934
+tcga_bcr.patient.primary_pathology.histology_list.histology.histological_type.@cde.3081934
+tcga_bcr.patient.primary_pathology.tumor_morphology_list.tumor_morphology.histological_type.@cde.3081934

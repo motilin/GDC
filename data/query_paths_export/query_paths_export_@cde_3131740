@@ -1,0 +1,4 @@
+tcga_bcr.patient.days_to_initial_pathologic_diagnosis.@cde.3131740
+tcga_bcr.patient.days_to_last_known_alive.@cde.3131740
+tcga_bcr.patient.follow_ups.follow_up.days_to_last_known_alive.@cde.3131740
+tcga_bcr.patient.primary_pathology.days_to_initial_pathologic_diagnosis.@cde.3131740

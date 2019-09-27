@@ -19,7 +19,9 @@ from gdcClasses.Connection import Connection
 from gdcClasses.File import File
 from gdcClasses.CaseBin import CaseBin
 from collections import OrderedDict
-from gdcClasses.Parser import Parser
+from gdcClasses.ClinicalSupplementXML import ClinicalSupplementXML
+from gdcClasses.Document import Document
+import logging
 
 matplotlib.use('TkAgg')
 plt.interactive(False)
@@ -620,10 +622,9 @@ def download_GDC_data_helper(f, s):
     return result
 
 
-
 def readCasesCollection(connection, remote=False):
     if remote:
-        return connection.get().cases
+        return connection.get().remote
     else:
         return connection.get().local
 
@@ -661,49 +662,14 @@ def bar_plot(firstDf, secondDf=None, labels=c.responses[1:], width=0.2, gap=5, f
     return None
 
 
-def update_clinical_data(doc: OrderedDict, connection: Connection):
-    case_id = File.get_value(doc, 'patient', 'bcr_patient_uuid')
-    project_code = File.get_value(doc, 'admin', 'project_code')
-    disease_code = File.get_value(doc, 'admin', 'disease_code')
-    day_of_dcc_upload = File.get_value(doc, 'admin', 'day_of_dcc_upload')
-    month_of_dcc_upload = File.get_value(doc, 'admin', 'month_of_dcc_upload')
-    year_of_dcc_upload = File.get_value(doc, 'admin', 'year_of_dcc_upload')
-    day_of_form_completion = File.get_value(doc, 'patient', 'day_of_form_completion')
-    month_of_form_completion = File.get_value(doc, 'patient', 'month_of_form_completion')
-    year_of_form_completion = File.get_value(doc, 'patient', 'year_of_form_completion')
-    patient_withdrawal = ('true' == File.get_value(doc, 'admin', 'patient_withdrawal'))
-    patient_id = File.get_value(doc, 'patient', 'bcr_patient_uuid')
-    days_to_birth = File.get_value(doc, 'patient', 'days_to_birth')
-    gender = File.get_value(doc, 'patient', 'gender')
-    race_list = File.get_value(doc, 'patient', 'race_list')
-    ethnicity = File.get_value(doc, 'patient', 'ethnicity')
-    history_of_neoadjuvant_treatment = File.get_value(doc, 'patient', 'history_of_neoadjuvant_treatment')
-    vital_status = File.get_value(doc, 'patient', 'vital_status')
-    days_to_last_followup = File.get_value(doc, 'patient', 'days_to_last_followup')
-    days_to_death = File.get_value(doc, 'patient', 'days_to_death')
-    person_neoplasm_cancer_status = File.get_value(doc, 'patient', 'person_neoplasm_cancer_status')
-    medical_history = File.get_value(doc, 'patient', 'patient_personal_medical_history_thyroid_gland_disorder_names')
-    medical_history_other = File.get_value(doc, 'patient', 'patient_personal_medical_history_thyroid_other_specify_text')
-    medical_history.union(medical_history_other)
-    radiation_exposure_risk = File.get_value(doc, 'patient', 'person_lifetime_risk_radiation_exposure_indicator')
-    tumor_tissue_site = File.get_value(doc, 'patient', 'tumor_tissue_site')
-    histological_type = File.get_value(doc, 'patient', 'histological_type')
-    histological_type_other = File.get_value(doc, 'patient', 'histological_type_other')
-    histological_type.union(histological_type_other)
-    neoplasm_dimension = File.get_value(doc, 'patient', 'neoplasm_dimension')
-    days_to_initial_pathologic_diagnosis = File.get_value(doc, 'patient', 'days_to_initial_pathologic_diagnosis')
-    age_at_initial_pathologic_diagnosis = File.get_value(doc, 'patient', 'age_at_initial_pathologic_diagnosis')
-    year_of_initial_pathologic_diagnosis = File.get_value(doc, 'patient', 'year_of_initial_pathologic_diagnosis')
-    lymph_node_examined_count = File.get_value(doc, 'patient', 'lymph_node_examined_count')
-    positive_lymph_nodes_count = File.get_value(doc, 'patient', 'number_of_lymphnodes_positive_by_he')
-    metastatic_site = File.get_value(doc, 'patient', 'metastatic_site')
-    metastatic_site_other = File.get_value(doc, 'patient', 'other_metastatic_site')
-    metastatic_site.union(metastatic_site_other)
+def update_clinical_data(xml: ClinicalSupplementXML):
+    drugs = []
+    for drug in Drug().load_clinical_supplement(xml):
+        drugs.append(drug)
+    if len(drugs) != 0:
+        print([drug.name for drug in drugs])
+    return drugs
 
-    case = Case.get_case(connection, case_id.pop())
-    # update the case
-    case.save(connection)
-    return case
 
 def update_follow_up(file_name: str, connection: Connection):
     return None
@@ -724,25 +690,37 @@ def update_clinical_supplement_data(connection: Connection):
         for file in cur["files"]:
             clinical_files.add(file["file_id"])
     print("downloading Clinical Supplement files ...")
-    clinical_files = File.download_files(list(clinical_files))
+    # clinical_files = File.download_files(list(clinical_files))
+    clinical_files = glob.glob('/home/motti/mottip/ChemotherapiesResistance/analysis/GDC/downloads/20190917-145357/*/*')
     non_xml = []
-    print("updating local database with clinical supplement data ...")
-    schemas = set()  # remove later
     for file in clinical_files:
         try:
-            doc = Parser(file).parse()
+            pass  # remove later
+            # ClinicalSupplementXML(connection).load_file(file).save()
         except TypeError:
             non_xml.append(file)
-        # update_clinical_data(doc, connection)
-        schemas.add(doc)   # remove later
-    return schemas # remove later
+    print("updating local database with clinical supplement data ...")
+    for xml in ClinicalSupplementXML.XML_generator(connection):
+        update_clinical_data(xml.get_values())
     for file_name in non_xml:
         update_follow_up(file_name, connection)
 
+    # for file in clinical_files:
+    #     try:
+    #         xml = ClinicalSupplementXML(connection).load_file(file)
+    #         values = xml.parse()
+    #     except TypeError:
+    #         non_xml.append(file)
+    #     try:
+    #         update_clinical_data(values, connection)
+    #     except IndexError:
+    #         print('xml: ' + xml.file_name)
+    #         print('schema: ' + xml.schema_file)
+
 
 def download_gdc_data(connection: Connection):
-    connection.get().drop_collection("cases")
-    case_collection = connection.get().cases
+    connection.get().drop_collection("remote")
+    case_collection = connection.get().remote
     print("downloading cases data")
     f = 0
     result = ["init"]
@@ -751,10 +729,16 @@ def download_gdc_data(connection: Connection):
         f += SIZE
         try:
             case_collection.insert_many(result)
-        except TypeError as error:
+        except TypeError:
             print("cases: end")
     print("storing cases data in local database")
     for caseDocument in case_collection.find():
         case = Case(caseDocument, remote=True)
         case.save(connection)
     update_clinical_supplement_data(connection)
+
+
+def initiate_logger():
+    with open(c.LOGGING_FILE, 'w'):
+        pass
+    logging.basicConfig(filename=c.LOGGING_FILE, level=logging.DEBUG)

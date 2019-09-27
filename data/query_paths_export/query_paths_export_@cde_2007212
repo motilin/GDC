@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.chemotherapy_regimen_types.chemotherapy_regimen_type.@cde.2007212
+tcga_bcr.patient.follow_ups.follow_up.treatment.concurrent_rx_tx_info.concurrent_rx_tx.chemotherapy_regimen_type.@cde.2007212
+tcga_bcr.patient.treatment.concurrent_rx_tx_info.concurrent_rx_tx.chemotherapy_regimen_type.@cde.2007212

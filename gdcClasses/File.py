@@ -129,11 +129,17 @@ class File:
         :param fileId_id_ist: list of file ids to be downloaded
         :type dir_name: str
         """
+        with open(c.TOKEN_FILE) as f:
+            token = str(f.read().strip())
         endpt = 'https://api.gdc.cancer.gov/data'
+        headers = {
+            "Content-Type": "application/json",
+            "X-Auth-Token": token
+        }
         params = {
             "ids": fileId_id_ist
         }
-        response = requests.post(endpt, data=json.dumps(params), headers={"Content-Type": "application/json"})
+        response = requests.post(endpt, data=json.dumps(params), headers=headers)
         response_head_cd = response.headers["Content-Disposition"]
         file_name = re.findall("filename=(.+)", response_head_cd)[0]
         file_name = dir_name + "/" + time.strftime("%Y%m%d-%H%M%S") + "_" + file_name
@@ -141,18 +147,46 @@ class File:
             output_file.write(response.content)
         return True
 
+    # @staticmethod
+    # def clean_xml_helper(doc):
+    #     if type(doc) == OrderedDict or type(doc) == dict or type(doc) == list:
+    #         keys = copy.deepcopy(list(doc.keys()))
+    #         for key in keys:
+    #             new_key = key.split(":")[-1].replace('.', '_')
+    #             doc[new_key] = File.clean_xml(doc[key])
+    #             if new_key != key:
+    #                 del doc[key]
+    #         return doc
+    #     else:
+    #         return doc
+
+
     @staticmethod
     def clean_xml_helper(doc):
         if type(doc) == OrderedDict or type(doc) == dict:
             keys = copy.deepcopy(list(doc.keys()))
+            if '#text' not in doc.keys():
+                doc['#text'] = None
             for key in keys:
-                new_key = key.split(":")[-1]
-                doc[new_key] = File.clean_xml(doc[key])
+                new_key = key.split(":")[-1].replace('.', '_')
+                doc[new_key] = File.clean_xml_helper(doc[key])
                 if new_key != key:
                     del doc[key]
             return doc
-        else:
+        elif type(doc) == list:
+            for item in copy.deepcopy(doc):
+                if type(item) == str:
+                    new_item = item.split(":")[-1].replace('.', '_')
+                else:
+                    new_item = File.clean_xml_helper(copy.deepcopy(item))
+                doc.remove(item)
+                doc.append(new_item)
             return doc
+        elif doc is None:
+            return doc
+        else:
+            return str(doc).strip().lower()
+
 
     @staticmethod
     def clean_xml(doc):
@@ -187,3 +221,18 @@ class File:
             return level
         return max(File.get_dict_depth(dict_doc[key], level + 1) for key in dict_doc)
 
+    @staticmethod
+    def find_file(dir, file_name):
+        for root, dirs, files in os.walk(dir):
+            for file in files:
+                if file == file_name:
+                    return root + "/" + file_name
+
+    @staticmethod
+    def find_by_suffix(dir, suffix):
+        files_with_suffix = []
+        for root, dirs, files in os.walk(dir):
+            for file in files:
+                if file.endswith(suffix):
+                    files_with_suffix.append(root + "/" + file)
+        return files_with_suffix

@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.new_tumor.histologic_disease_progression_present_text.@cde.3181387
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.histologic_disease_progression_present_text.@cde.3181387
+tcga_bcr.patient.new_tumor_events.new_tumor_event.histologic_disease_progression_present_text.@cde.3181387

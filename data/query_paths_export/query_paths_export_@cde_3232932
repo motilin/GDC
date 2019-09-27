@@ -1,0 +1,5 @@
+tcga_bcr.patient.follow_ups.follow_up.new_tumor.radiosensitizing_agent_administered_indicator.@cde.3232932
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.radiosensitizing_agent_administered_indicator.@cde.3232932
+tcga_bcr.patient.follow_ups.follow_up.radiosensitizing_agent_administered_indicator.@cde.3232932
+tcga_bcr.patient.new_tumor_events.new_tumor_event.radiosensitizing_agent_administered_indicator.@cde.3232932
+tcga_bcr.patient.radiosensitizing_agent_administered_indicator.@cde.3232932

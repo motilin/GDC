@@ -1,0 +1,4 @@
+tcga_bcr.patient.follow_ups.follow_up.days_to_new_tumor_event_after_initial_treatment.@cde.3392464
+tcga_bcr.patient.follow_ups.follow_up.new_tumor.days_to_new_tumor_event_after_initial_treatment.@cde.3392464
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.days_to_new_tumor_event_after_initial_treatment.@cde.3392464
+tcga_bcr.patient.new_tumor_events.new_tumor_event.days_to_new_tumor_event_after_initial_treatment.@cde.3392464

@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.discontiguous_lesion_count.@cde.3162604
+tcga_bcr.patient.new_tumor_events.new_tumor_event.discontiguous_lesion_count.@cde.3162604
+tcga_bcr.patient.primary_pathology.discontiguous_lesion_count.@cde.3162604

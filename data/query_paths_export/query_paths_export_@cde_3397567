@@ -1,0 +1,5 @@
+tcga_bcr.patient.follow_ups.follow_up.postoperative_rx_tx.@cde.3397567
+tcga_bcr.patient.follow_ups.follow_up.treatment.postoperative_rx_tx.@cde.3397567
+tcga_bcr.patient.postoperative_rx_tx.@cde.3397567
+tcga_bcr.patient.primary_pathology.postoperative_rx_tx.@cde.3397567
+tcga_bcr.patient.treatment.postoperative_rx_tx.@cde.3397567

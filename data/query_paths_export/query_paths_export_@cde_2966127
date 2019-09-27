@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.brachytherapy_method_type.@cde.2966127
+tcga_bcr.patient.follow_ups.follow_up.treatment.radiation_therapy_info.brachytherapy_method_type.@cde.2966127
+tcga_bcr.patient.treatment.radiation_therapy_info.brachytherapy_method_type.@cde.2966127

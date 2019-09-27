@@ -1,0 +1,5 @@
+tcga_bcr.patient.primary_pathology.tumor_tissue_site.@cde.3427536
+tcga_bcr.patient.primary_pathology.tumor_tissue_site_list.tumor_tissue_site.@cde.3427536
+tcga_bcr.patient.primary_pathology.tumor_tissue_sites.tumor_tissue_site.@cde.3427536
+tcga_bcr.patient.sites_of_primary_melanomas.site.tumor_tissue_site.@cde.3427536
+tcga_bcr.patient.tumor_tissue_site.@cde.3427536

@@ -3,6 +3,7 @@ from .File import File
 from .Diagnosis import Diagnosis
 from pymongo.errors import DuplicateKeyError
 from .Connection import Connection
+from .Document import Document
 
 
 class Case:
@@ -10,8 +11,11 @@ class Case:
     def __init__(self, case_document, remote=False):
         self._id = None
         self.diagnoses = set()
-        self.files = []
-        self.drugs = []
+        self.files = set()
+        self.drugs = set()
+        self.project_code = None
+        self.disease_code = None
+        self.gender = None
         if remote:
             self.load_remote(case_document)
         else:
@@ -35,16 +39,23 @@ class Case:
     def serialize(self):
         case = dict()
         case["_id"] = self._id
+        case["project_code"] = self.project_code
+        case["disease_code"] = self.disease_code
+        case["gender"] = self.gender
         case["diagnoses"] = [diagnosis.serialize() for diagnosis in self.diagnoses]
         case["files"] = [file.serialize() for file in self.files]
         case["drugs"] = [drug.serialize() for drug in self.drugs]
         return case
 
     def deserialize(self, case_document):
-        self._id = case_document["_id"]
-        self.diagnoses = set([Diagnosis(diagnosisDocument) for diagnosisDocument in case_document["diagnoses"]])
-        self.files = [File(fileDocument) for fileDocument in case_document["files"]]
-        self.drugs = [Drug(drugDocument) for drugDocument in case_document["drugs"]]
+        doc = Document(case_document)
+        self._id = doc.get("_id", str)
+        self.diagnoses = set([Diagnosis(diagnosisDocument) for diagnosisDocument in doc.get("diagnoses", list)])
+        self.files = set([File(fileDocument) for fileDocument in doc.get("files", list)])
+        self.drugs = set([Drug(drugDocument) for drugDocument in doc.get("drugs", list)])
+        self.project_code = doc.get("project_code", str)
+        self.disease_code = doc.get("disease_code", str)
+        self.gender = doc.get("gender", str)
 
     def save(self, connection):
         local_cases_collection = connection.get().local
@@ -79,14 +90,18 @@ class Case:
             return None
 
     def add_drug(self, drug):
-        exist_drug = self.get_drug(drug.name)
-        if exist_drug is None:
-            self.drugs.append(drug)
-        else:
-            exist_drug.merge(drug)
+        self.drugs.add(drug)
+
+    def remove_drug(self, drug):
+        drug = self.get_drug(drug)
+        self.drugs.remove(drug)
 
     def get_id(self):
         return self._id
+
+    def set_drugs(self, drug_list):
+        for drug in drug_list:
+            self.drugs.add(drug)
 
     @staticmethod
     def get_case(connection: Connection, case_id: str):

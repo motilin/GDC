@@ -1,0 +1,3 @@
+tcga_bcr.patient.follow_ups.follow_up.new_tumor.new_neoplasm_confirmed_diagnosis_method_name.@cde.3186701
+tcga_bcr.patient.follow_ups.follow_up.new_tumor_events.new_tumor_event.new_neoplasm_confirmed_diagnosis_method_name.@cde.3186701
+tcga_bcr.patient.new_tumor_events.new_tumor_event.new_neoplasm_confirmed_diagnosis_method_name.@cde.3186701
